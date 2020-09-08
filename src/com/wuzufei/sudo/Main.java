@@ -30,10 +30,14 @@ public class Main {
         List<MatOfPoint> list = new ArrayList<MatOfPoint>();
         Mat hierarchy = new Mat();
         Imgproc.findContours(edges, list, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+
         //5 绘制轮廓
         for (int i = 0, len = list.size(); i < len; i++) {
-            Imgproc.drawContours(src, list, i, new Scalar(0, 255, 0), 1, Imgproc.LINE_AA);
+            if (i % 2 != 0) {
+                Imgproc.drawContours(src, list, i, new Scalar(0, 255, 0), 1, Imgproc.LINE_AA);
+            }
         }
+        System.out.println(list.size());
         HighGui.imshow("111", src);
         HighGui.waitKey(0);
 
