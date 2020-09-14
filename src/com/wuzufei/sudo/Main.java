@@ -1,27 +1,19 @@
 package com.wuzufei.sudo;
 
 import org.opencv.core.*;
-import org.opencv.core.Point;
-import org.opencv.highgui.HighGui;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.ml.KNearest;
 import org.opencv.ml.Ml;
 import org.opencv.utils.Converters;
 
-import java.awt.*;
-import java.awt.font.ImageGraphicAttribute;
-import java.awt.image.AreaAveragingScaleFilter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Random;
+
 
 public class Main {
-
     public static void main(String[] args) {
-	// write your code here
-
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         //1 获取原图
         Mat src = Imgcodecs.imread("C:\\\\Users\\\\phoenix-Wu\\\\Desktop\\\\test.png");
@@ -42,12 +34,6 @@ public class Main {
         Imgproc.findContours(dilate, list, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
         int m = 0;
         for (int i = 0, len = list.size(); i < len; i++) {
-            //System.out.println(hierarchy.get(0, i));
-//            if ((hierarchy.get(0, i))[3] == 0 && (hierarchy.get(0, i))[2] > 0) {
-//                m++;
-//                int idx = (int) (hierarchy.get(0, i))[0];
-//                Imgproc.drawContours(src, list, idx, new Scalar(0, 0, 255), 2, Imgproc.LINE_AA);
-//            }
             if ((hierarchy.get(0, i))[3] == 0) {
                 if ((hierarchy.get(0, i))[2] > 0) {
                     m++;
@@ -146,7 +132,7 @@ public class Main {
             KNearest knn = KNearest.create();
             //knn.train(train_collection, train_label);
             knn.train(train_collection, Ml.ROW_SAMPLE, Converters.vector_int_to_Mat(train_label));
-            
+
             //HighGui.imshow(i + "jpg", src_image);
             //HighGui.waitKey(0);
 
