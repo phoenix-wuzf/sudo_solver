@@ -129,10 +129,9 @@ public class Main {
                 train_collection.push_back(roi_2);
                 train_label.add(j+6);
             }
-            KNearest knn = KNearest.create();
+            //KNearest knn = KNearest.create();
             //knn.train(train_collection, train_label);
-            knn.train(train_collection, Ml.ROW_SAMPLE, Converters.vector_int_to_Mat(train_label));
-
+            //knn.train(train_collection, Ml.ROW_SAMPLE, Converters.vector_int_to_Mat(train_label));
             //HighGui.imshow(i + "jpg", src_image);
             //HighGui.waitKey(0);
 
