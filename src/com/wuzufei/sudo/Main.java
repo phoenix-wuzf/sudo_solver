@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-
 public class Main {
     public static void main(String[] args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -52,8 +51,11 @@ public class Main {
 
         return;
     }
-    public static <CvKNearest> void process_tranin_data() {
-
+    public static void process_tranin_data() {
+        Mat train_collection = new Mat();
+        List<Integer> train_label = new ArrayList<>();
+        Mat test_collection = new Mat();
+        List<Integer> test_label = new ArrayList<>();
         for (int i = 1; i < 11; i++) {
             String file_path = "D:\\work_space\\sudo_solver\\numbers\\"+i+".jpg";
             Mat src_image = Imgcodecs.imread(file_path);
@@ -97,10 +99,7 @@ public class Main {
                     }
                 });
             }
-            Mat train_collection = new Mat();
-            List<Integer> train_label = new ArrayList<>();
-            Mat test_collection = new Mat();
-            List<Integer> test_label = new ArrayList<>();
+
 
             for (int j = 0; j < 5; j++) {
                 String file_out_path = "D:\\work_space\\sudo_solver\\train_data\\"+ (j + 1) +"\\" + ((i + 1) *(j + 1)) +".jpg";
@@ -129,12 +128,14 @@ public class Main {
                 train_collection.push_back(roi_2);
                 train_label.add(j+6);
             }
-            //KNearest knn = KNearest.create();
-            //knn.train(train_collection, train_label);
-            //knn.train(train_collection, Ml.ROW_SAMPLE, Converters.vector_int_to_Mat(train_label));
+
             //HighGui.imshow(i + "jpg", src_image);
             //HighGui.waitKey(0);
 
         }
+        KNearest knn = KNearest.create();
+
+        boolean status =  knn.train(train_collection, Ml.ROW_SAMPLE, Converters.vector_int_to_Mat(train_label));
+        System.out.println("status:" + status);
     }
 }
