@@ -129,8 +129,8 @@ public class Main {
                 train_label.add(j+6);
             }
 
-            //HighGui.imshow(i + "jpg", src_image);
-            //HighGui.waitKey(0);
+            HighGui.imshow(i + "jpg", src_image);
+            HighGui.waitKey(0);
 
         }
         KNearest knn = KNearest.create();
