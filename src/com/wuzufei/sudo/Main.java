@@ -57,7 +57,7 @@ public class Main {
         List<Integer> train_label = new ArrayList<>();
         Mat test_collection = new Mat();
         List<Integer> test_label = new ArrayList<>();
-        for (int i = 1; i < 11; i++) {
+        for (int i = 1; i < 2; i++) {
             String file_path = "D:\\work_space\\sudo_solver\\numbers\\"+i+".jpg";
             Mat src_image = Imgcodecs.imread(file_path);
             Mat gray = new Mat();
@@ -106,13 +106,14 @@ public class Main {
                 String file_out_path = "D:\\work_space\\sudo_solver\\train_data\\"+ (j + 1) +"\\" + ((i + 1) *(j + 1)) +".jpg";
                 Mat roi_1 = new Mat(thresh, list_1.get(j));
                 Imgproc.resize(roi_1, roi_1, new Size(40, 80));
+                roi_1.convertTo(roi_1, CvType.CV_32F);
                 //Imgcodecs.imwrite(file_out_path, roi_1);
                 if (i == 3) {
-                    test_collection.push_back(roi_1);
+                    test_collection.push_back(roi_1.reshape(1,1));
                     test_label.add(j+1);
                     continue;
                 }
-                train_collection.push_back(roi_1);
+                train_collection.push_back(roi_1.reshape(1, 1));
                 train_label.add(j+1);
 
             }
@@ -120,23 +121,33 @@ public class Main {
                 String file_out_path = "D:\\work_space\\sudo_solver\\train_data\\"+ (j + 6) +"\\" + ((i + 1) *(j + 1)) +".jpg";
                 Mat roi_2 = new Mat(thresh, list_2.get(j));
                 Imgproc.resize(roi_2, roi_2, new Size(40, 80));
+                roi_2.convertTo(roi_2, CvType.CV_32F);
                 //Imgcodecs.imwrite(file_out_path, roi_2);
                 if (i == 3) {
-                    test_collection.push_back(roi_2);
+                    test_collection.push_back(roi_2.reshape(1, 1));
                     test_label.add(j+1);
                     continue;
                 }
-                train_collection.push_back(roi_2);
+                train_collection.push_back(roi_2.reshape(1, 1));
                 train_label.add(j+6);
             }
 
-            HighGui.imshow(i + "jpg", src_image);
-            HighGui.waitKey(0);
+            //HighGui.imshow(i + "jpg", src_image);
+            //HighGui.waitKey(0);
 
         }
         KNearest knn = KNearest.create();
 
         boolean status =  knn.train(train_collection, Ml.ROW_SAMPLE, Converters.vector_int_to_Mat(train_label));
-        System.out.println("status:" + status);
+        System.out.println("status:" + status + " " + test_collection.rows());
+        for (int i = 0; i < test_collection.rows(); i++) {
+            Mat one_feature = test_collection.row(i);
+            int testLabel = test_label.get(i);
+
+            Mat res = new Mat();
+            float p = knn.findNearest(one_feature, 1, res);
+            System.out.println(testLabel + " " + p + " " + res.dump());
+        }
+
     }
 }

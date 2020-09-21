@@ -17,7 +17,7 @@ public class NumberKnn {
 
     public static void main(String[] args) {
         // samples/data/digits.png, have a look at it.
-        Mat digits = Imgcodecs.imread("digits.png", 0);
+        Mat digits = Imgcodecs.imread("D:\\opencv\\sources\\samples\\data\\digits.png", 0);
         // setup train/test data:
         Mat trainData = new Mat();
         Mat testData = new Mat();
