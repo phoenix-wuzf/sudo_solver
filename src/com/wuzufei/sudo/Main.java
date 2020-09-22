@@ -31,6 +31,7 @@ public class Main {
 
         List<MatOfPoint> list = new ArrayList<MatOfPoint>();
         Mat hierarchy = new Mat();
+        Mat test_img_data = new Mat();
         Imgproc.findContours(dilate, list, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
         int m = 0;
         for (int i = 0, len = list.size(); i < len; i++) {
@@ -46,8 +47,8 @@ public class Main {
         }
         System.out.println(list.size());
         System.out.println(m);
-        //HighGui.imshow("111", src);
-        //HighGui.waitKey(0);
+        HighGui.imshow("111", src);
+        HighGui.waitKey(0);
         process_tranin_data();
 
         return;
@@ -57,7 +58,7 @@ public class Main {
         List<Integer> train_label = new ArrayList<>();
         Mat test_collection = new Mat();
         List<Integer> test_label = new ArrayList<>();
-        for (int i = 1; i < 2; i++) {
+        for (int i = 1; i < 10; i++) {
             String file_path = "D:\\work_space\\sudo_solver\\numbers\\"+i+".jpg";
             Mat src_image = Imgcodecs.imread(file_path);
             Mat gray = new Mat();
@@ -139,7 +140,7 @@ public class Main {
         KNearest knn = KNearest.create();
 
         boolean status =  knn.train(train_collection, Ml.ROW_SAMPLE, Converters.vector_int_to_Mat(train_label));
-        System.out.println("status:" + status + " " + test_collection.rows());
+        System.out.println("status:" + status + " test row: " + test_collection.rows() + " train :" + train_collection.rows());
         for (int i = 0; i < test_collection.rows(); i++) {
             Mat one_feature = test_collection.row(i);
             int testLabel = test_label.get(i);
