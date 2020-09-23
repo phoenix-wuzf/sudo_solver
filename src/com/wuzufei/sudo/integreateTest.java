@@ -13,8 +13,6 @@ import java.util.Comparator;
 import java.util.List;
 
 public class integreateTest {
-    public static KNearest knn;
-
     public static void main(String[] args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         //1 获取原图
@@ -38,8 +36,8 @@ public class integreateTest {
         int row = 0, col = 0, cnt = 0;
         char[][] sudo_img = new char[10][10];
 
-        boolean status = knn_train();
-
+        //boolean status = knn_train();
+        KNearest knn = knn_train();
         for (int i = list.size() - 1; i >= 0; i--) {
             if ((hierarchy.get(0, i))[3] == 0) {
                 row = cnt / 9;
@@ -98,7 +96,7 @@ public class integreateTest {
         return;
     }
 
-    public static boolean knn_train() {
+    public static KNearest knn_train() {
         boolean status;
         Mat train_collection = new Mat();
         List<Integer> train_label = new ArrayList<>();
@@ -161,9 +159,9 @@ public class integreateTest {
                 train_label.add(j + 6);
             }
         }
-        knn = KNearest.create();
+        KNearest knn = KNearest.create();
         status = knn.train(train_collection, Ml.ROW_SAMPLE, Converters.vector_int_to_Mat(train_label));
 
-        return status;
+        return knn;
     }
 }
