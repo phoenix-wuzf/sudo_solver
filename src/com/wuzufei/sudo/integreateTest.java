@@ -1,4 +1,3 @@
-
 package com.wuzufei.sudo;
 
 import org.opencv.core.*;
@@ -103,9 +102,7 @@ public class integreateTest {
         boolean status;
         Mat train_collection = new Mat();
         List<Integer> train_label = new ArrayList<>();
-        Mat test_collection = new Mat();
-        List<Integer> test_label = new ArrayList<>();
-        for (int i = 1; i < 10; i++) {
+        for (int i = 1; i < 11; i++) {
             String file_path = "D:\\work_space\\sudo_solver\\numbers\\" + i + ".jpg";
             Mat src_image = Imgcodecs.imread(file_path);
             Mat gray = new Mat();
@@ -156,7 +153,7 @@ public class integreateTest {
                 train_collection.push_back(roi_1.reshape(1, 1));
                 train_label.add(j + 1);
             }
-            for (int j = 0; j < 4; j++) {
+            for (int j = 0; j < 5; j++) {
                 Mat roi_2 = new Mat(thresh, list_2.get(j));
                 Imgproc.resize(roi_2, roi_2, new Size(40, 80));
                 roi_2.convertTo(roi_2, CvType.CV_32F);
