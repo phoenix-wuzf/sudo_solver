@@ -28,7 +28,7 @@ public class integreateTest {
         Mat dilate = gary.clone();
         //Imgproc.Canny(gary, edges, 200, 500, 3, false);
         Imgproc.threshold(gary, thresh, 200, 255, 1);
-        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_CROSS, new Size(5,5));
+        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_CROSS, new Size(5, 5));
         Imgproc.dilate(thresh, dilate, kernel);
         //4 发现轮廓
 
@@ -54,8 +54,8 @@ public class integreateTest {
                     roi.convertTo(roi, CvType.CV_32F);
                     test_img_data.push_back(roi.reshape(1, 1));
 
-                    int find_num = (int)knn.findNearest(roi.reshape(1, 1), 1, new Mat());
-                    System.out.println("num["+ row +"]["+ col +"]:" + find_num);
+                    int find_num = (int) knn.findNearest(roi.reshape(1, 1), 1, new Mat());
+                    System.out.println("num[" + row + "][" + col + "]:" + find_num);
                     sudo_img[row][col] = (char) (find_num + '0');
                     continue;
                 }
@@ -77,21 +77,36 @@ public class integreateTest {
             }
             System.out.println();
         }
-        //System.out.println(list.size());
-        //System.out.println(m);
-        //HighGui.imshow("111", src);
-        //HighGui.waitKey(0);
+        cnt = 0;
+        for (int i = list.size() - 1; i >= 0; i--) {
+            if ((hierarchy.get(0, i))[3] == 0) {
+                row = cnt / 9;
+                col = cnt % 9;
+                cnt++;
+                if ((hierarchy.get(0, i))[2] > 0) {
+                    int idx = (int) (hierarchy.get(0, i))[2];
+                    Rect area = Imgproc.boundingRect(list.get(idx));
+                } else {
+                    Rect area = Imgproc.boundingRect(list.get(i));
+                    Imgproc.putText(src, String.valueOf(sudo_img[row][col]), new Point(area.x + 20, area.y + 60),
+                            3, 2.5, new Scalar(0, 0, 255), 2, Imgproc.LINE_AA);
+                }
+
+            }
+        }
+        HighGui.imshow("111", src);
+        HighGui.waitKey(0);
         return;
     }
 
     public static boolean knn_train() {
-        boolean status ;
+        boolean status;
         Mat train_collection = new Mat();
         List<Integer> train_label = new ArrayList<>();
         Mat test_collection = new Mat();
         List<Integer> test_label = new ArrayList<>();
         for (int i = 1; i < 10; i++) {
-            String file_path = "D:\\work_space\\sudo_solver\\numbers\\"+i+".jpg";
+            String file_path = "D:\\work_space\\sudo_solver\\numbers\\" + i + ".jpg";
             Mat src_image = Imgcodecs.imread(file_path);
             Mat gray = new Mat();
             Mat blur = new Mat();
@@ -134,147 +149,24 @@ public class integreateTest {
                 });
             }
 
-
             for (int j = 0; j < 5; j++) {
-                String file_out_path = "D:\\work_space\\sudo_solver\\train_data\\"+ (j + 1) +"\\" + ((i + 1) *(j + 1)) +".jpg";
                 Mat roi_1 = new Mat(thresh, list_1.get(j));
                 Imgproc.resize(roi_1, roi_1, new Size(40, 80));
                 roi_1.convertTo(roi_1, CvType.CV_32F);
-                //Imgcodecs.imwrite(file_out_path, roi_1);
-                /* if (i == 3) {
-                    test_collection.push_back(roi_1.reshape(1,1));
-                    test_label.add(j+1);
-                    continue;
-                } */
                 train_collection.push_back(roi_1.reshape(1, 1));
-                train_label.add(j+1);
-
+                train_label.add(j + 1);
             }
             for (int j = 0; j < 4; j++) {
-                String file_out_path = "D:\\work_space\\sudo_solver\\train_data\\"+ (j + 6) +"\\" + ((i + 1) *(j + 1)) +".jpg";
                 Mat roi_2 = new Mat(thresh, list_2.get(j));
                 Imgproc.resize(roi_2, roi_2, new Size(40, 80));
                 roi_2.convertTo(roi_2, CvType.CV_32F);
-                //Imgcodecs.imwrite(file_out_path, roi_2);
-                /* if (i == 3) {
-                    test_collection.push_back(roi_2.reshape(1, 1));
-                    test_label.add(j+1);
-                    continue;
-                } */
                 train_collection.push_back(roi_2.reshape(1, 1));
-                train_label.add(j+6);
+                train_label.add(j + 6);
             }
         }
         knn = KNearest.create();
-        status =  knn.train(train_collection, Ml.ROW_SAMPLE, Converters.vector_int_to_Mat(train_label));
+        status = knn.train(train_collection, Ml.ROW_SAMPLE, Converters.vector_int_to_Mat(train_label));
 
         return status;
     }
-//    public static void process_tranin_data(Mat test_img_data) {
-//        Mat train_collection = new Mat();
-//        List<Integer> train_label = new ArrayList<>();
-//        Mat test_collection = new Mat();
-//        List<Integer> test_label = new ArrayList<>();
-//        for (int i = 1; i < 10; i++) {
-//            String file_path = "D:\\work_space\\sudo_solver\\numbers\\"+i+".jpg";
-//            Mat src_image = Imgcodecs.imread(file_path);
-//            Mat gray = new Mat();
-//            Mat blur = new Mat();
-//            Mat thresh = new Mat();
-//            Imgproc.cvtColor(src_image, gray, Imgproc.COLOR_BGR2GRAY);
-//            Imgproc.GaussianBlur(gray, blur, new Size(5, 5), 0);
-//            Imgproc.adaptiveThreshold(blur, thresh, 255, 1, 1, 11, 2);
-//            Mat hierarchy = new Mat();
-//            List<MatOfPoint> list = new ArrayList<MatOfPoint>();
-//            Imgproc.findContours(thresh, list, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-//            int height = src_image.height();
-//            int width = src_image.width();
-//            List<Rect> list_1 = new ArrayList<>();
-//            List<Rect> list_2 = new ArrayList<>();
-//            for (int j = 0; j < list.size(); j++) {
-//                Rect rect = Imgproc.boundingRect(list.get(j));
-//                if (rect.height < 60 || rect.width < 30) {
-//                    continue;
-//                }
-//                if (rect.width > 30 && rect.height > (height / 4)) {
-//                    if (rect.y < (height / 2)) {
-//                        list_1.add(rect);
-//                        Imgproc.rectangle(src_image, rect, new Scalar(0, 0, 255), 2);
-//                    } else {
-//                        list_2.add(rect);
-//                        Imgproc.rectangle(src_image, rect, new Scalar(0, 255, 0), 2);
-//                    }
-//                }
-//                list_1.sort(new Comparator<Rect>() {
-//                    @Override
-//                    public int compare(Rect o1, Rect o2) {
-//                        return o1.x - o2.x;
-//                    }
-//                });
-//                list_2.sort(new Comparator<Rect>() {
-//                    @Override
-//                    public int compare(Rect o1, Rect o2) {
-//                        return o1.x - o2.x;
-//                    }
-//                });
-//            }
-//
-//
-//            for (int j = 0; j < 5; j++) {
-//                String file_out_path = "D:\\work_space\\sudo_solver\\train_data\\"+ (j + 1) +"\\" + ((i + 1) *(j + 1)) +".jpg";
-//                Mat roi_1 = new Mat(thresh, list_1.get(j));
-//                Imgproc.resize(roi_1, roi_1, new Size(40, 80));
-//                roi_1.convertTo(roi_1, CvType.CV_32F);
-//                //Imgcodecs.imwrite(file_out_path, roi_1);
-//                if (i == 3) {
-//                    test_collection.push_back(roi_1.reshape(1,1));
-//                    test_label.add(j+1);
-//                    continue;
-//                }
-//                train_collection.push_back(roi_1.reshape(1, 1));
-//                train_label.add(j+1);
-//
-//            }
-//            for (int j = 0; j < 4; j++) {
-//                String file_out_path = "D:\\work_space\\sudo_solver\\train_data\\"+ (j + 6) +"\\" + ((i + 1) *(j + 1)) +".jpg";
-//                Mat roi_2 = new Mat(thresh, list_2.get(j));
-//                Imgproc.resize(roi_2, roi_2, new Size(40, 80));
-//                roi_2.convertTo(roi_2, CvType.CV_32F);
-//                //Imgcodecs.imwrite(file_out_path, roi_2);
-//                if (i == 3) {
-//                    test_collection.push_back(roi_2.reshape(1, 1));
-//                    test_label.add(j+1);
-//                    continue;
-//                }
-//                train_collection.push_back(roi_2.reshape(1, 1));
-//                train_label.add(j+6);
-//            }
-//
-//            //HighGui.imshow(i + "jpg", src_image);
-//            //HighGui.waitKey(0);
-//
-//        }
-//        KNearest knn = KNearest.create();
-//
-//        boolean status =  knn.train(train_collection, Ml.ROW_SAMPLE, Converters.vector_int_to_Mat(train_label));
-//        System.out.println("status:" + status + " test row: " + test_collection.rows() + " train :" + train_collection.rows());
-////        for (int i = 0; i < test_collection.rows(); i++) {
-////            Mat one_feature = test_collection.row(i);
-////            int testLabel = test_label.get(i);
-////
-////            Mat res = new Mat();
-////            float p = knn.findNearest(one_feature, 1, res);
-////            System.out.println(testLabel + " " + p + " " + res.dump());
-////        }
-//        for (int i = test_img_data.rows() - 1; i >= 0; i--) {
-//            Mat one_feature = test_img_data.row(i);
-//            //int testLabel = test_label.get(i);
-//
-//            Mat res = new Mat();
-//            float p = knn.findNearest(one_feature, 1, res);
-//            System.out.println(" " + p + " res : " + res.dump());
-//        }
-//
-//    }
 }
-
