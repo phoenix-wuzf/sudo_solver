@@ -36,11 +36,16 @@ public class Main {
         int m = 0;
         for (int i = 0, len = list.size(); i < len; i++) {
             if ((hierarchy.get(0, i))[3] == 0) {
+                m++;
                 if ((hierarchy.get(0, i))[2] > 0) {
-                    m++;
                     int idx = (int) (hierarchy.get(0, i))[2];
                     //Imgproc.drawContours(src, list, i, new Scalar(0, 0, 255), 2, Imgproc.LINE_AA);
                     Rect area = Imgproc.boundingRect(list.get(idx));
+                    //test_img_data.push_back();
+                    Mat roi = new Mat(thresh, area);
+                    Imgproc.resize(roi, roi, new Size(40, 80));
+                    roi.convertTo(roi, CvType.CV_32F);
+                    test_img_data.push_back(roi.reshape(1, 1));
                     Imgproc.rectangle(src, area, new Scalar(0, 0, 255), 2);
                 }
             }
@@ -49,11 +54,11 @@ public class Main {
         System.out.println(m);
         HighGui.imshow("111", src);
         HighGui.waitKey(0);
-        process_tranin_data();
+        process_tranin_data(test_img_data);
 
         return;
     }
-    public static void process_tranin_data() {
+    public static void process_tranin_data(Mat test_img_data) {
         Mat train_collection = new Mat();
         List<Integer> train_label = new ArrayList<>();
         Mat test_collection = new Mat();
@@ -141,13 +146,21 @@ public class Main {
 
         boolean status =  knn.train(train_collection, Ml.ROW_SAMPLE, Converters.vector_int_to_Mat(train_label));
         System.out.println("status:" + status + " test row: " + test_collection.rows() + " train :" + train_collection.rows());
-        for (int i = 0; i < test_collection.rows(); i++) {
-            Mat one_feature = test_collection.row(i);
-            int testLabel = test_label.get(i);
+//        for (int i = 0; i < test_collection.rows(); i++) {
+//            Mat one_feature = test_collection.row(i);
+//            int testLabel = test_label.get(i);
+//
+//            Mat res = new Mat();
+//            float p = knn.findNearest(one_feature, 1, res);
+//            System.out.println(testLabel + " " + p + " " + res.dump());
+//        }
+        for (int i = test_img_data.rows() - 1; i >= 0; i--) {
+            Mat one_feature = test_img_data.row(i);
+            //int testLabel = test_label.get(i);
 
             Mat res = new Mat();
             float p = knn.findNearest(one_feature, 1, res);
-            System.out.println(testLabel + " " + p + " " + res.dump());
+            System.out.println(" " + p + " res : " + res.dump());
         }
 
     }
