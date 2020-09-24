@@ -8,6 +8,7 @@ import org.opencv.ml.KNearest;
 import org.opencv.ml.Ml;
 import org.opencv.utils.Converters;
 
+import java.sql.SQLSyntaxErrorException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -16,7 +17,9 @@ public class integreateTest {
     public static void main(String[] args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         //1 获取原图
-        Mat src = Imgcodecs.imread("C:\\\\Users\\\\phoenix-Wu\\\\Desktop\\\\test.png");
+        Mat src = Imgcodecs.imread("C:\\\\Users\\\\phoenix-Wu\\\\Desktop\\\\test2.png");
+        System.out.println(src.width() + " " + src.height());
+        Imgproc.resize(src, src, new Size(952, 952));
         //2 图片灰度化
         Mat gary = new Mat();
         Imgproc.cvtColor(src, gary, Imgproc.COLOR_BGR2GRAY);
@@ -85,7 +88,7 @@ public class integreateTest {
                     Rect area = Imgproc.boundingRect(list.get(idx));
                 } else {
                     Rect area = Imgproc.boundingRect(list.get(i));
-                    Imgproc.putText(src, String.valueOf(sudo_img[row][col]), new Point(area.x + 20, area.y + 60),
+                    Imgproc.putText(src, String.valueOf(sudo_img[row][col]), new Point(area.x + 20, area.y + 70),
                             3, 2.5, new Scalar(0, 0, 255), 2, Imgproc.LINE_AA);
                 }
 
