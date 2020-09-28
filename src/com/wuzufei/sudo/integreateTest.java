@@ -8,16 +8,43 @@ import org.opencv.ml.KNearest;
 import org.opencv.ml.Ml;
 import org.opencv.utils.Converters;
 
+import javax.swing.*;
 import java.sql.SQLSyntaxErrorException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Scanner;
 
 public class integreateTest {
     public static void main(String[] args) {
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+//        System.out.print("Please input:");//提示输入
+//        Scanner s=new Scanner(System.in);//创建scanner，控制台会一直等待输入，直到敲回车结束
+//        String str=s.nextLine();//将用户的输入转换为字符串形式
+//        if("ByeBye".equals(str)){//if语句的条件判断用户输入是否为ByeBye
+//            System.out.print("The process is over");//输出进程已结束
+//            System.exit(0);//关闭进程
+//        }else {
+//            //使用消息提示框输出信息
+//            JOptionPane.showMessageDialog(null, "You input is " + str, str, JOptionPane.PLAIN_MESSAGE);
+//            System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+//        }
+//        JFileChooser fileChooser = new JFileChooser("C:\\");
+//        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+//        int returnVal = fileChooser.showOpenDialog(fileChooser);
+//        if(returnVal == JFileChooser.APPROVE_OPTION) {
+//            String filePath = fileChooser.getSelectedFile().getAbsolutePath();//这个就是你选择的文件夹的路径
+//        }
+        JFileChooser fileChooser = new JFileChooser("C:\\");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        int returnVal = fileChooser.showOpenDialog(fileChooser);
+        String filePath = "";
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            filePath += fileChooser.getSelectedFile().getAbsolutePath();//这个就是你选择的文件夹的路径
+            //fileChooser.getSelectedFile().get
+        }
+        System.out.println(filePath);
         //1 获取原图
-        Mat src = Imgcodecs.imread("C:\\\\Users\\\\phoenix-Wu\\\\Desktop\\\\test2.png");
+        Mat src = Imgcodecs.imread("C:\\Users\\phoenix-Wu\\Desktop\\test1.png");
         System.out.println(src.width() + " " + src.height());
         Imgproc.resize(src, src, new Size(952, 952));
         //2 图片灰度化
