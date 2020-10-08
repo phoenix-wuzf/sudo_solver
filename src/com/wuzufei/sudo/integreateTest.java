@@ -9,7 +9,6 @@ import org.opencv.ml.Ml;
 import org.opencv.utils.Converters;
 
 import javax.swing.*;
-import java.sql.SQLSyntaxErrorException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -22,12 +21,11 @@ public class integreateTest {
         int returnVal = fileChooser.showOpenDialog(fileChooser);
         String filePath = "";
         if(returnVal == JFileChooser.APPROVE_OPTION) {
-            filePath = fileChooser.getSelectedFile().getAbsolutePath();//这个就是你选择的文件夹的路径
+            filePath = fileChooser.getSelectedFile().getAbsolutePath();
         }
         //1 获取原图
-        //Mat src = Imgcodecs.imread("C:\\\\Users\\\\phoenix-Wu\\\\Desktop\\\\test2.png");
         Mat src = Imgcodecs.imread(filePath);
-        System.out.println(src.width() + " " + src.height());
+        //System.out.println(src.width() + " " + src.height());
         Imgproc.resize(src, src, new Size(952, 952));
         //2 图片灰度化
         Mat gary = new Mat();
@@ -35,7 +33,6 @@ public class integreateTest {
         //3 图像边缘处理
         Mat thresh = new Mat();
         Mat dilate = gary.clone();
-        //Imgproc.Canny(gary, edges, 200, 500, 3, false);
         Imgproc.threshold(gary, thresh, 200, 255, 1);
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_CROSS, new Size(5, 5));
         Imgproc.dilate(thresh, dilate, kernel);
@@ -43,7 +40,6 @@ public class integreateTest {
 
         List<MatOfPoint> list = new ArrayList<MatOfPoint>();
         Mat hierarchy = new Mat();
-        Mat test_img_data = new Mat();
         Imgproc.findContours(dilate, list, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
         int row = 0, col = 0, cnt = 0;
         char[][] sudo_img = new char[10][10];
@@ -61,31 +57,30 @@ public class integreateTest {
                     Mat roi = new Mat(thresh, area);
                     Imgproc.resize(roi, roi, new Size(40, 80));
                     roi.convertTo(roi, CvType.CV_32F);
-                    test_img_data.push_back(roi.reshape(1, 1));
 
                     int find_num = (int) knn.findNearest(roi.reshape(1, 1), 1, new Mat());
-                    System.out.println("num[" + row + "][" + col + "]:" + find_num);
+                    //System.out.println("num[" + row + "][" + col + "]:" + find_num);
                     sudo_img[row][col] = (char) (find_num + '0');
                     continue;
                 }
                 sudo_img[row][col] = '.';
             }
         }
-        for (int i = 0; i < sudo_img.length; i++) {
-            for (int j = 0; j < sudo_img[0].length; j++) {
-                System.out.print(sudo_img[i][j] + " ");
-            }
-            System.out.println();
-        }
+//        for (int i = 0; i < sudo_img.length; i++) {
+//            for (int j = 0; j < sudo_img[0].length; j++) {
+//                System.out.print(sudo_img[i][j] + " ");
+//            }
+//            System.out.println();
+//        }
         SudoSolver sudo_solver = new SudoSolver();
         sudo_solver.solveSudoku(sudo_img);
-        System.out.println();
-        for (int i = 0; i < sudo_img.length; i++) {
-            for (int j = 0; j < sudo_img[0].length; j++) {
-                System.out.print(sudo_img[i][j] + " ");
-            }
-            System.out.println();
-        }
+//        System.out.println();
+//        for (int i = 0; i < sudo_img.length; i++) {
+//            for (int j = 0; j < sudo_img[0].length; j++) {
+//                System.out.print(sudo_img[i][j] + " ");
+//            }
+//            System.out.println();
+//        }
         cnt = 0;
         for (int i = list.size() - 1; i >= 0; i--) {
             if ((hierarchy.get(0, i))[3] == 0) {
@@ -127,7 +122,8 @@ public class integreateTest {
             int height = src_image.height();
             int width = src_image.width();
             List<Rect> list_1 = new ArrayList<>();
-            List<Rect> list_2 = new ArrayList<>();
+            List<Rect> list_2 = new ArrayList<Rect>();
+
             for (int j = 0; j < list.size(); j++) {
                 Rect rect = Imgproc.boundingRect(list.get(j));
                 if (rect.height < 60 || rect.width < 30) {
@@ -154,6 +150,7 @@ public class integreateTest {
                         return o1.x - o2.x;
                     }
                 });
+
             }
 
             for (int j = 0; j < 5; j++) {
