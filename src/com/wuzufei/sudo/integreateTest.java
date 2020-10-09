@@ -24,6 +24,7 @@ public class integreateTest {
             filePath = fileChooser.getSelectedFile().getAbsolutePath();
         }
         //1 获取原图
+
         Mat src = Imgcodecs.imread(filePath);
         //System.out.println(src.width() + " " + src.height());
         Imgproc.resize(src, src, new Size(952, 952));
@@ -66,21 +67,10 @@ public class integreateTest {
                 sudo_img[row][col] = '.';
             }
         }
-//        for (int i = 0; i < sudo_img.length; i++) {
-//            for (int j = 0; j < sudo_img[0].length; j++) {
-//                System.out.print(sudo_img[i][j] + " ");
-//            }
-//            System.out.println();
-//        }
+
         SudoSolver sudo_solver = new SudoSolver();
         sudo_solver.solveSudoku(sudo_img);
-//        System.out.println();
-//        for (int i = 0; i < sudo_img.length; i++) {
-//            for (int j = 0; j < sudo_img[0].length; j++) {
-//                System.out.print(sudo_img[i][j] + " ");
-//            }
-//            System.out.println();
-//        }
+
         cnt = 0;
         for (int i = list.size() - 1; i >= 0; i--) {
             if ((hierarchy.get(0, i))[3] == 0) {
@@ -95,11 +85,12 @@ public class integreateTest {
                     Imgproc.putText(src, String.valueOf(sudo_img[row][col]), new Point(area.x + 20, area.y + 70),
                             3, 2.5, new Scalar(0, 0, 255), 2, Imgproc.LINE_AA);
                 }
-
             }
         }
-        HighGui.imshow("111", src);
-        HighGui.waitKey(0);
+
+//        HighGui.imshow("111", src);
+//        HighGui.waitKey(0);
+        Imgcodecs.imwrite(filePath.split("\\.")[0] + "_result.png", src);
         return;
     }
 
