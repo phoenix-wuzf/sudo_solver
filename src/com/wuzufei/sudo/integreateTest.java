@@ -1,21 +1,21 @@
 package com.wuzufei.sudo;
 
 import org.opencv.core.*;
-import org.opencv.highgui.HighGui;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.ml.KNearest;
 import org.opencv.ml.Ml;
 import org.opencv.utils.Converters;
-
 import javax.swing.*;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public class integreateTest {
+    private static String train_data_path = "D:\\work_space\\sudo_solver\\numbers\\";
+
     public static void main(String[] args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+
         JFileChooser fileChooser = new JFileChooser("D:\\");
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         int returnVal = fileChooser.showOpenDialog(fileChooser);
@@ -24,9 +24,7 @@ public class integreateTest {
             filePath = fileChooser.getSelectedFile().getAbsolutePath();
         }
         //1 获取原图
-
         Mat src = Imgcodecs.imread(filePath);
-        //System.out.println(src.width() + " " + src.height());
         Imgproc.resize(src, src, new Size(952, 952));
         //2 图片灰度化
         Mat gary = new Mat();
@@ -38,15 +36,14 @@ public class integreateTest {
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_CROSS, new Size(5, 5));
         Imgproc.dilate(thresh, dilate, kernel);
         //4 发现轮廓
-
         List<MatOfPoint> list = new ArrayList<MatOfPoint>();
         Mat hierarchy = new Mat();
         Imgproc.findContours(dilate, list, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
         int row = 0, col = 0, cnt = 0;
         char[][] sudo_img = new char[10][10];
 
-        //boolean status = knn_train();
         KNearest knn = knn_train();
+
         for (int i = list.size() - 1; i >= 0; i--) {
             if ((hierarchy.get(0, i))[3] == 0) {
                 row = cnt / 9;
@@ -60,7 +57,6 @@ public class integreateTest {
                     roi.convertTo(roi, CvType.CV_32F);
 
                     int find_num = (int) knn.findNearest(roi.reshape(1, 1), 1, new Mat());
-                    //System.out.println("num[" + row + "][" + col + "]:" + find_num);
                     sudo_img[row][col] = (char) (find_num + '0');
                     continue;
                 }
@@ -71,6 +67,7 @@ public class integreateTest {
         SudoSolver sudo_solver = new SudoSolver();
         sudo_solver.solveSudoku(sudo_img);
 
+        /* 识别结果添加到原图中 */
         cnt = 0;
         for (int i = list.size() - 1; i >= 0; i--) {
             if ((hierarchy.get(0, i))[3] == 0) {
@@ -88,31 +85,27 @@ public class integreateTest {
             }
         }
 
-//        HighGui.imshow("111", src);
-//        HighGui.waitKey(0);
         Imgcodecs.imwrite(filePath.split("\\.")[0] + "_result.png", src);
-        return;
     }
 
-    public static KNearest knn_train() {
+    private static KNearest knn_train() {
         boolean status;
         Mat train_collection = new Mat();
         List<Integer> train_label = new ArrayList<>();
         for (int i = 1; i < 11; i++) {
-            String file_path = "D:\\work_space\\sudo_solver\\numbers\\" + i + ".jpg";
-            Mat src_image = Imgcodecs.imread(file_path);
-            Mat gray = new Mat();
-            Mat blur = new Mat();
-            Mat thresh = new Mat();
-            Imgproc.cvtColor(src_image, gray, Imgproc.COLOR_BGR2GRAY);
-            Imgproc.GaussianBlur(gray, blur, new Size(5, 5), 0);
-            Imgproc.adaptiveThreshold(blur, thresh, 255, 1, 1, 11, 2);
+
+            Mat src_image = Imgcodecs.imread(train_data_path + i + ".jpg");
+            Mat tmp_mat = new Mat();
+            /* 训练数据预处理 */
+            Imgproc.cvtColor(src_image, tmp_mat, Imgproc.COLOR_BGR2GRAY);
+            Imgproc.GaussianBlur(tmp_mat, tmp_mat, new Size(5, 5), 0);
+            Imgproc.adaptiveThreshold(tmp_mat, tmp_mat, 255, 1, 1, 11, 2);
+
             Mat hierarchy = new Mat();
             List<MatOfPoint> list = new ArrayList<MatOfPoint>();
-            Imgproc.findContours(thresh, list, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+            Imgproc.findContours(tmp_mat, list, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
             int height = src_image.height();
-            int width = src_image.width();
-            List<Rect> list_1 = new ArrayList<>();
+            List<Rect> list_1 = new ArrayList<Rect>();
             List<Rect> list_2 = new ArrayList<Rect>();
 
             for (int j = 0; j < list.size(); j++) {
@@ -129,39 +122,23 @@ public class integreateTest {
                         Imgproc.rectangle(src_image, rect, new Scalar(0, 255, 0), 2);
                     }
                 }
-                list_1.sort(new Comparator<Rect>() {
-                    @Override
-                    public int compare(Rect o1, Rect o2) {
-                        return o1.x - o2.x;
-                    }
-                });
-                list_2.sort(new Comparator<Rect>() {
-                    @Override
-                    public int compare(Rect o1, Rect o2) {
-                        return o1.x - o2.x;
-                    }
-                });
-
             }
-
-            for (int j = 0; j < 5; j++) {
-                Mat roi_1 = new Mat(thresh, list_1.get(j));
+            list_1.sort((o1, o2) -> (o1.x - o2.x));
+            list_2.sort((o1, o2) -> (o1.x - o2.x));
+            list_1.addAll(list_2);
+            for (int j = 0; j < list_1.size(); j++) {
+                Mat roi_1 = new Mat(tmp_mat, list_1.get(j));
                 Imgproc.resize(roi_1, roi_1, new Size(40, 80));
                 roi_1.convertTo(roi_1, CvType.CV_32F);
                 train_collection.push_back(roi_1.reshape(1, 1));
                 train_label.add(j + 1);
             }
-            for (int j = 0; j < 5; j++) {
-                Mat roi_2 = new Mat(thresh, list_2.get(j));
-                Imgproc.resize(roi_2, roi_2, new Size(40, 80));
-                roi_2.convertTo(roi_2, CvType.CV_32F);
-                train_collection.push_back(roi_2.reshape(1, 1));
-                train_label.add(j + 6);
-            }
         }
         KNearest knn = KNearest.create();
         status = knn.train(train_collection, Ml.ROW_SAMPLE, Converters.vector_int_to_Mat(train_label));
-
+        if (status != true) {
+            System.out.println("KNN is fail\n");
+        }
         return knn;
     }
 }
