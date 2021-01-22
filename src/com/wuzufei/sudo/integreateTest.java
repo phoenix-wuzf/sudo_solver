@@ -12,7 +12,6 @@ import java.util.List;
 
 public class integreateTest {
     private static String train_data_path = "D:\\work_space\\sudo_solver\\numbers\\";
-
     public static void main(String[] args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
@@ -66,7 +65,6 @@ public class integreateTest {
 
         SudoSolver sudo_solver = new SudoSolver();
         sudo_solver.solveSudoku(sudo_img);
-
         /* 识别结果添加到原图中 */
         cnt = 0;
         for (int i = list.size() - 1; i >= 0; i--) {
